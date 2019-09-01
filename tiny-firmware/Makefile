@@ -30,6 +30,10 @@ OBJS += gen/fonts.o
 TEST_OBJS += firmware/test_timer.o
 TEST_OBJS += firmware/test_fsm.o
 TEST_OBJS += firmware/test_droplet.o
+TEST_OBJS += serialno.o
+TEST_OBJS += firmware/test_pin.o
+TEST_OBJS += firmware/test_serialno.o
+TEST_OBJS += firmware/test_reset.o
 TEST_OBJS += firmware/test_main.o
 TEST_OBJS += firmware/test_many_address_golden.o
 TEST_OBJS += firmware/test_protect.o
@@ -75,15 +79,15 @@ OBJS += firmware/factory_test.o
 OBJS += firmware/gpio_noise.o
 OBJS += firmware/entropy.o
 OBJS += firmware/swtimer.o
+OBJS += firmware/bootloader_integrity.o
 
 OBJS += protob/c/messages.pb.o
 OBJS += protob/c/types.pb.o
 
 #skycoin-crypto
+OBJS += $(TOP_DIR)vendor/skycoin-crypto/skycoin_signature.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/skycoin_crypto.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/check_digest.o
-OBJS += $(TOP_DIR)vendor/skycoin-crypto/skycoin_check_signature_tools.o
-OBJS += $(TOP_DIR)vendor/skycoin-crypto/skycoin_check_signature.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/base58.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/blake256.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/hasher.o
@@ -99,6 +103,7 @@ OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/memzero.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/secp256k1.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/bip39.o
 OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/pbkdf2.o
+OBJS += $(TOP_DIR)vendor/skycoin-crypto/tools/entropypool.o
 #end skycoin-crypto
 
 ifeq ($(REVERSE_SCREEN),1)
@@ -115,6 +120,12 @@ CFLAGS += -Wno-int-to-pointer-cast
 
 CFLAGS   += -include $(TOP_DIR)emulator/emulator.h
 CFLAGS   += -include stdio.h
+ifeq ($(COVERAGE), 1)
+	CFLAGS += -fprofile-arcs -ftest-coverage
+	LDLIBS+=-lgcov --coverage
+	SRCS  = $(OBJS:.o=.c)
+	SRCS += $(TEST_OBJS:.o=.c)
+endif
 
 ifeq ($(HEADLESS),1)
 CFLAGS   += -DHEADLESS=1
@@ -150,7 +161,10 @@ libopencm3:
 	cd vendor/libopencm3 && make
 
 sign: $(NAME).bin
-	bootloader/firmware_sign.py -f $(NAME).bin
+	bootloader/firmware_sign.py -f $(NAME).bin -pk $(FIRMWARE_SIGNATURE_PUB_KEY1) $(FIRMWARE_SIGNATURE_PUB_KEY2) $(FIRMWARE_SIGNATURE_PUB_KEY3) $(FIRMWARE_SIGNATURE_PUB_KEY4) $(FIRMWARE_SIGNATURE_PUB_KEY5) -s
+
+add_meta_header: $(NAME).bin
+	bootloader/firmware_sign.py -f $(NAME).bin -pk $(FIRMWARE_SIGNATURE_PUB_KEY1) $(FIRMWARE_SIGNATURE_PUB_KEY2) $(FIRMWARE_SIGNATURE_PUB_KEY3) $(FIRMWARE_SIGNATURE_PUB_KEY4) $(FIRMWARE_SIGNATURE_PUB_KEY5) -a
 
 include Makefile.include
 
@@ -166,3 +180,6 @@ clean::
 	rm -f *.log
 	rm -f *.srec
 	cd protob && make clean-c
+
+coverage: test
+	gcov -n -b $(SRCS)

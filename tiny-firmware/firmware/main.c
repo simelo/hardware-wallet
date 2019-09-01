@@ -28,15 +28,28 @@
 #include "timer.h"
 #include "usb.h"
 #include "util.h"
+#include "bootloader_integrity.h"
+
+#ifdef __CYGWIN__
+#ifdef main
+#undef main
+#endif
+#endif
 
 extern uint32_t storage_uuid[STM32_UUID_LEN / sizeof(uint32_t)];
-int main(void)
-{
+
+int main(void) {
 #if defined(EMULATOR) && EMULATOR == 1
     setup();
     __stack_chk_guard = random32(); // this supports compiler provided unpredictable stack protection checks
     oledInit();
 #else  // defined(EMULATOR) && EMULATOR == 1
+    if (!check_bootloader()) {
+        layoutDialog(&bmp_icon_error, NULL, NULL, NULL, "Unknown bootloader", "detected.", NULL,
+                     "Unplug your Skywallet",
+                     "contact our support.", NULL);
+        for (;;);
+    }
     setupApp();
     __stack_chk_guard = random32(); // this supports compiler provided unpredictable stack protection checks
 #endif // defined(EMULATOR) && EMULATOR == 1
@@ -51,7 +64,7 @@ int main(void)
     timer_init();
 
 #if !defined(EMULATOR) || EMULATOR == 0
-    set_up_rdp_level();
+    memory_rdp_level();
     desig_get_unique_id(storage_uuid);
     // enable MPU (Memory Protection Unit)
     mpu_config();
