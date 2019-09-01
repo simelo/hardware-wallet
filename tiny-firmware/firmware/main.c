@@ -12,6 +12,7 @@
 #include <libopencm3/stm32/desig.h>
 
 #include "bitmaps.h"
+#include "bootloader_integrity.h"
 #include "buttons.h"
 #include "entropy.h"
 #include "factory_test.h"
@@ -28,7 +29,6 @@
 #include "timer.h"
 #include "usb.h"
 #include "util.h"
-#include "bootloader_integrity.h"
 
 #ifdef __CYGWIN__
 #ifdef main
@@ -38,7 +38,8 @@
 
 extern uint32_t storage_uuid[STM32_UUID_LEN / sizeof(uint32_t)];
 
-int main(void) {
+int main(void)
+{
 #if defined(EMULATOR) && EMULATOR == 1
     setup();
     __stack_chk_guard = random32(); // this supports compiler provided unpredictable stack protection checks
@@ -46,9 +47,10 @@ int main(void) {
 #else  // defined(EMULATOR) && EMULATOR == 1
     if (!check_bootloader()) {
         layoutDialog(&bmp_icon_error, NULL, NULL, NULL, "Unknown bootloader", "detected.", NULL,
-                     "Unplug your Skywallet",
-                     "contact our support.", NULL);
-        for (;;);
+            "Unplug your Skywallet",
+            "contact our support.", NULL);
+        for (;;)
+            ;
     }
     setupApp();
     __stack_chk_guard = random32(); // this supports compiler provided unpredictable stack protection checks

@@ -57,7 +57,7 @@ ErrCode_t msgEntropyAckImpl(EntropyAck* msg)
     _Static_assert(EXTERNAL_ENTROPY_MAX_SIZE == sizeof(msg->entropy.bytes),
         "External entropy size does not match.");
     if (msg->entropy.size > sizeof(msg->entropy.bytes)) {
-      return ErrInvalidArg;
+        return ErrInvalidArg;
     }
     if (!msg->has_entropy) {
         return ErrEntropyNotNeeded;
@@ -108,7 +108,7 @@ ErrCode_t msgSkycoinSignMessageImpl(SkycoinSignMessage* msg, ResponseSkycoinSign
 {
     // NOTE: twise the SKYCOIN_SIG_LEN because the hex format
     _Static_assert(sizeof(resp->signed_message) >= 2 * SKYCOIN_SIG_LEN,
-                   "hex SKYCOIN_SIG_LEN do not fit in the response");
+        "hex SKYCOIN_SIG_LEN do not fit in the response");
     CHECK_MNEMONIC_RET_ERR_CODE
     uint8_t pubkey[SKYCOIN_PUBKEY_LEN] = {0};
     uint8_t seckey[SKYCOIN_SECKEY_LEN] = {0};
@@ -120,7 +120,7 @@ ErrCode_t msgSkycoinSignMessageImpl(SkycoinSignMessage* msg, ResponseSkycoinSign
     if (is_sha256_digest_hex(msg->message)) {
         writebuf_fromhexstr(msg->message, digest);
     } else {
-        sha256sum((const uint8_t *)msg->message, digest, strlen(msg->message));
+        sha256sum((const uint8_t*)msg->message, digest, strlen(msg->message));
     }
     int res = skycoin_ecdsa_sign_digest(seckey, digest, signature);
     if (res == -2) {
@@ -170,8 +170,8 @@ ErrCode_t fsm_getKeyPairAtIndex(uint32_t nbAddress, uint8_t* pubkey, uint8_t* se
     uint8_t nextSeed[SHA256_DIGEST_LENGTH] = {0};
     size_t size_address = 36;
     _Static_assert(
-            sizeof(respSkycoinAddress->addresses[0]) == 36,
-            "invalid address bffer size");
+        sizeof(respSkycoinAddress->addresses[0]) == 36,
+        "invalid address bffer size");
     if (mnemo == NULL || nbAddress == 0) {
         return ErrInvalidArg;
     }
@@ -186,8 +186,7 @@ ErrCode_t fsm_getKeyPairAtIndex(uint32_t nbAddress, uint8_t* pubkey, uint8_t* se
     }
     memcpy(seed, nextSeed, 32);
     size_t max_addresses =
-            sizeof(respSkycoinAddress->addresses)
-            / sizeof(respSkycoinAddress->addresses[0]);
+        sizeof(respSkycoinAddress->addresses) / sizeof(respSkycoinAddress->addresses[0]);
     if (nbAddress + start_index - 1 > max_addresses) {
         return ErrInvalidArg;
     }
@@ -234,9 +233,9 @@ ErrCode_t msgSkycoinCheckMessageSignatureImpl(SkycoinCheckMessageSignature* msg,
     // NOTE(): -1 because the end of string ('\0')
     // /2 because the hex to buff conversion.
     _Static_assert((sizeof(msg->message) - 1) / 2 == SHA256_DIGEST_LENGTH,
-                   "Invalid buffer size for message");
+        "Invalid buffer size for message");
     _Static_assert((sizeof(msg->signature) - 1) / 2 == SKYCOIN_SIG_LEN,
-                    "Invalid buffer size for signature");
+        "Invalid buffer size for signature");
     uint8_t sig[SKYCOIN_SIG_LEN] = {0};
     // NOTE(): -1 because the end of string ('\0')
     char address[sizeof(msg->address) - 1];
@@ -245,7 +244,7 @@ ErrCode_t msgSkycoinCheckMessageSignatureImpl(SkycoinCheckMessageSignature* msg,
     if (is_sha256_digest_hex(msg->message)) {
         tobuff(msg->message, digest, MIN(sizeof(digest), sizeof(msg->message)));
     } else {
-        sha256sum((const uint8_t *)msg->message, digest, strlen(msg->message));
+        sha256sum((const uint8_t*)msg->message, digest, strlen(msg->message));
     }
     tobuff(msg->signature, sig, sizeof(sig));
     ErrCode_t ret = (skycoin_ecdsa_verify_digest_recover(sig, digest, pubkey) == 0) ? ErrOk : ErrInvalidSignature;
@@ -376,10 +375,10 @@ ErrCode_t msgGetFeaturesImpl(Features* resp)
 
 ErrCode_t msgTransactionSignImpl(TransactionSign* msg, ErrCode_t (*funcConfirmTxn)(char*, char*, TransactionSign*, uint32_t), ResponseTransactionSign* resp)
 {
-    if (msg->nbIn > sizeof(msg->transactionIn)/sizeof(*msg->transactionIn)) {
+    if (msg->nbIn > sizeof(msg->transactionIn) / sizeof(*msg->transactionIn)) {
         return ErrInvalidArg;
     }
-    if (msg->nbOut > sizeof(msg->transactionOut)/sizeof(*msg->transactionOut)) {
+    if (msg->nbOut > sizeof(msg->transactionOut) / sizeof(*msg->transactionOut)) {
         return ErrInvalidArg;
     }
 #if EMULATOR
@@ -583,7 +582,7 @@ ErrCode_t msgBackupDeviceImpl(BackupDevice* msg, ErrCode_t (*funcConfirmBackup)(
     }
     ErrCode_t err = reset_backup(true);
     if (err != ErrOk) {
-      return err;
+        return err;
     }
 
     err = funcConfirmBackup();
@@ -627,7 +626,7 @@ ErrCode_t msgRecoveryDeviceImpl(RecoveryDevice* msg, ErrCode_t (*funcConfirmReco
         msg->has_passphrase_protection && msg->passphrase_protection,
         msg->has_pin_protection && msg->pin_protection,
         msg->has_language ? msg->language : 0,
-        (msg->has_label && strlen(msg->label) > 0)? msg->label: current_label,
+        (msg->has_label && strlen(msg->label) > 0) ? msg->label : current_label,
         dry_run);
     return ErrOk;
 }

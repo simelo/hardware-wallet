@@ -636,7 +636,7 @@ START_TEST(test_deterministic_key_pair_iterator)
     ret = deterministic_key_pair_iterator((const uint8_t*)seed, 64, next_seed, seckey, pubkey);
     ck_assert_int_eq(ret, 0);
     memcpy(seed, next_seed, 32);
-    for (int i = 1; i<1024; i++) {
+    for (int i = 1; i < 1024; i++) {
         ret = deterministic_key_pair_iterator((const uint8_t*)seed, 32, next_seed, seckey, pubkey);
         ck_assert_int_eq(ret, 0);
         memcpy(seed, next_seed, 32);
@@ -795,7 +795,7 @@ START_TEST(test_ecdsa_sign_digest_inner)
 
     bn_read_be(digest, &z);
     bn_read_be(nonce, &k);
-    res = ecdsa_sign_digest_inner(curve->params, seckey, &z, &k,  signature, &recid, NULL);
+    res = ecdsa_sign_digest_inner(curve->params, seckey, &z, &k, signature, &recid, NULL);
     ck_assert_int_eq(res, 0);
     ck_assert_mem_eq(signature, fromhex("98f9d784ba6c5c77bb7323d044c0fc9f2b27baa0a5b0718fe88596cc566819801ca662aaefd6cc958ba4604fea999db133a75bf34c13334dabac7124ff0cfcc1"), 64);
     ck_assert_int_eq(recid, 0);

@@ -93,7 +93,7 @@ bool is_base16_char(char c)
 
 START_TEST(test_msgGenerateMnemonicImplOk)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         storage_wipe();
         GenerateMnemonic msg = GenerateMnemonic_init_zero;
         msg.word_count = wcs[wi];
@@ -159,7 +159,7 @@ END_TEST
 
 START_TEST(test_isSha256DigestHex)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         forceGenerateMnemonic(wcs[wi]);
         char raw_msg_hex[] = {"32018964c1ac8c2a536b59dd830a80b9d4ce3bb1ad6a182c13b36240ebf4ec11"};
         uint8_t raw_msg[sizeof(raw_msg_hex)] = {0};
@@ -169,8 +169,7 @@ START_TEST(test_isSha256DigestHex)
         SkycoinSignMessage msg = SkycoinSignMessage_init_zero;
         strncpy(
             msg.message, (char*)raw_msg,
-            sizeof(raw_msg) < sizeof(msg.message)
-                    ? sizeof(raw_msg) : sizeof(msg.message));
+            sizeof(raw_msg) < sizeof(msg.message) ? sizeof(raw_msg) : sizeof(msg.message));
         RESP_INIT(ResponseSkycoinSignMessage);
         msgSkycoinSignMessageImpl(&msg, resp);
         // NOTE(): ecdsa signature have 65 bytes,
@@ -190,7 +189,7 @@ END_TEST
 
 START_TEST(test_msgSkycoinSignMessageReturnIsInHex)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         forceGenerateMnemonic(wcs[wi]);
         char raw_msg[] = {"32018964c1ac8c2a536b59dd830a80b9d4ce3bb1ad6a182c13b36240ebf4ec11"};
         char test_msg[256];
@@ -212,7 +211,7 @@ END_TEST
 
 START_TEST(test_msgSkycoinSignMessageCheckMaxAddresses)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         forceGenerateMnemonic(wcs[wi]);
         char raw_msg[] = {"32018964c1ac8c2a536b59dd830a80b9d4ce3bb1ad6a182c13b36240ebf4ec11"};
         SkycoinSignMessage msg = SkycoinSignMessage_init_zero;
@@ -232,7 +231,7 @@ END_TEST
 
 START_TEST(test_msgSkycoinCheckMessageSignatureOk)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         // NOTE(): Given
         forceGenerateMnemonic(wcs[wi]);
         SkycoinAddress msgSkyAddress = SkycoinAddress_init_zero;
@@ -260,15 +259,15 @@ START_TEST(test_msgSkycoinCheckMessageSignatureOk)
         Success successRespCheck = Success_init_zero;
         Failure failRespCheck = Failure_init_zero;
         err = msgSkycoinCheckMessageSignatureImpl(
-                    &checkMsg, &successRespCheck, &failRespCheck);
+            &checkMsg, &successRespCheck, &failRespCheck);
 
         // NOTE(): Then
         ck_assert_int_eq(ErrOk, err);
         ck_assert(successRespCheck.has_message);
         int address_diff = strncmp(
-                    respAddress->addresses[0],
-                successRespCheck.message,
-                sizeof(respAddress->addresses[0]));
+            respAddress->addresses[0],
+            successRespCheck.message,
+            sizeof(respAddress->addresses[0]));
         if (address_diff) {
             fprintf(stderr, "\nrespAddress->addresses[0]: ");
             for (size_t i = 0; i < sizeof(respAddress->addresses[0]); ++i) {
@@ -297,7 +296,7 @@ START_TEST(test_msgSkycoinCheckMessageSignatureCanNotGetPubKey)
 
     // NOTE When
     ErrCode_t err = msgSkycoinCheckMessageSignatureImpl(
-                &checkMsg, &successRespCheck, &failRespCheck);
+        &checkMsg, &successRespCheck, &failRespCheck);
 
     // NOTE Then
     ck_assert_int_eq(ErrInvalidSignature, err);
@@ -322,7 +321,7 @@ static void random_shuffle(char* buffer, size_t len)
 
 START_TEST(test_msgSkycoinCheckMessageSignatureFailedAsExpectedForInvalidSignedMessage)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         // NOTE(): Given
         forceGenerateMnemonic(wcs[wi]);
         SkycoinAddress msgSkyAddress = SkycoinAddress_init_zero;
@@ -359,9 +358,9 @@ START_TEST(test_msgSkycoinCheckMessageSignatureFailedAsExpectedForInvalidSignedM
         ck_assert_int_ne(ErrOk, err);
         ck_assert(failRespCheck->has_message);
         int address_diff = strncmp(
-                    respAddress->addresses[0],
-                successRespCheck->message,
-                sizeof(respAddress->addresses[0]));
+            respAddress->addresses[0],
+            successRespCheck->message,
+            sizeof(respAddress->addresses[0]));
         ck_assert_int_ne(0, address_diff);
     }
 }
@@ -369,7 +368,7 @@ END_TEST
 
 START_TEST(test_msgSkycoinCheckMessageSignatureFailedAsExpectedForInvalidMessage)
 {
-    for (size_t wi = 0; wi < sizeof(wcs)/sizeof(*wcs); ++wi) {
+    for (size_t wi = 0; wi < sizeof(wcs) / sizeof(*wcs); ++wi) {
         // NOTE(): Given
         forceGenerateMnemonic(wcs[wi]);
         SkycoinAddress msgSkyAddress = SkycoinAddress_init_zero;
@@ -407,9 +406,9 @@ START_TEST(test_msgSkycoinCheckMessageSignatureFailedAsExpectedForInvalidMessage
         ck_assert_int_ne(ErrOk, err);
         ck_assert(failRespCheck->has_message);
         int address_diff = strncmp(
-                    respAddress->addresses[0],
-                successRespCheck->message,
-                sizeof(respAddress->addresses[0]));
+            respAddress->addresses[0],
+            successRespCheck->message,
+            sizeof(respAddress->addresses[0]));
         ck_assert_int_ne(0, address_diff);
     }
 }
@@ -706,7 +705,8 @@ START_TEST(test_msgSkycoinAddressesStartIndex)
 }
 END_TEST
 
-void setPassphrase(char *passphrase) {
+void setPassphrase(char* passphrase)
+{
     ApplySettings msg = ApplySettings_init_zero;
     msg.has_use_passphrase = true;
     msg.use_passphrase = true;
@@ -789,18 +789,18 @@ END_TEST
 
 START_TEST(test_msgSkycoinAddressesFailWithoutMnemonic)
 {
-	SkycoinAddress msgAddr = SkycoinAddress_init_zero;
-	RESP_INIT(ResponseSkycoinAddress);
+    SkycoinAddress msgAddr = SkycoinAddress_init_zero;
+    RESP_INIT(ResponseSkycoinAddress);
 
-	storage_wipe();
+    storage_wipe();
 
-	msgAddr.has_start_index = true;
-	msgAddr.start_index = random32() % 100;
-	msgAddr.address_n = random32() % (100 - msgAddr.start_index) + 1;
-	ck_assert_uint_ge(msgAddr.address_n, 1);
-	msgAddr.has_confirm_address = false;
+    msgAddr.has_start_index = true;
+    msgAddr.start_index = random32() % 100;
+    msgAddr.address_n = random32() % (100 - msgAddr.start_index) + 1;
+    ck_assert_uint_ge(msgAddr.address_n, 1);
+    msgAddr.has_confirm_address = false;
 
-	ck_assert_int_eq(msgSkycoinAddressImpl(&msgAddr, resp), ErrMnemonicRequired);
+    ck_assert_int_eq(msgSkycoinAddressImpl(&msgAddr, resp), ErrMnemonicRequired);
 }
 END_TEST
 

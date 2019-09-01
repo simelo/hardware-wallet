@@ -14,19 +14,20 @@
 #include <stdio.h> //sprintf
 #include <string.h>
 
-#include "skycoin_constants.h"
-#include "skycoin_signature.h"
 #include "base58.h"
-#include "secp256k1.h"
 #include "curves.h"
 #include "ecdsa.h"
 #include "ripemd160.h"
+#include "secp256k1.h"
 #include "sha2.h"
+#include "skycoin_constants.h"
+#include "skycoin_signature.h"
 
 extern void bn_print(const bignum256* a);
 
-bool verify_pub_key(const uint8_t* pub_key) {
-    const curve_info *info = get_curve_by_name(SECP256K1_NAME);
+bool verify_pub_key(const uint8_t* pub_key)
+{
+    const curve_info* info = get_curve_by_name(SECP256K1_NAME);
     if (!info) {
         return false;
     }
@@ -165,12 +166,12 @@ int secp256k1sum(const uint8_t* seed, const size_t seed_length, uint8_t* digest)
     SKYCOIN CIPHER AUDIT
     Compare to function: secp256k1.Secp256k1Hash
     */
-    uint8_t seckey[SKYCOIN_SECKEY_LEN] = {0};                           // generateKey(sha256(seed))
+    uint8_t seckey[SKYCOIN_SECKEY_LEN] = {0}; // generateKey(sha256(seed))
     uint8_t dummy_seckey[SKYCOIN_SECKEY_LEN] = {0};
-    uint8_t pubkey[SKYCOIN_PUBKEY_LEN] = {0};                           // generateKey(sha256(sha256(seed))
-    uint8_t hash[SHA256_DIGEST_LENGTH] = {0};                           // sha256(seed)
-    uint8_t hash2[SHA256_DIGEST_LENGTH] = {0};                          // sha256(sha256(seed))
-    uint8_t ecdh_key[SKYCOIN_PUBKEY_LEN] = {0};                         // ecdh(pubkey, seckey)
+    uint8_t pubkey[SKYCOIN_PUBKEY_LEN] = {0};   // generateKey(sha256(sha256(seed))
+    uint8_t hash[SHA256_DIGEST_LENGTH] = {0};   // sha256(seed)
+    uint8_t hash2[SHA256_DIGEST_LENGTH] = {0};  // sha256(sha256(seed))
+    uint8_t ecdh_key[SKYCOIN_PUBKEY_LEN] = {0}; // ecdh(pubkey, seckey)
 
     // hash = sha256(seed)
     sha256sum(seed, hash, seed_length);
@@ -222,31 +223,31 @@ int deterministic_key_pair_iterator(const uint8_t* seed, const size_t seed_lengt
         return -1;
     }
 
-    #if DEBUG_DETERMINISTIC_KEY_PAIR_ITERATOR
+#if DEBUG_DETERMINISTIC_KEY_PAIR_ITERATOR
     char buf[256];
     tohex(buf, seed, seed_length);
     printf("seedIn: %s\n", buf);
     tohex(buf, next_seed, SHA256_DIGEST_LENGTH);
     printf("next_seed: %s\n", buf);
-    #endif
+#endif
 
     sha256sum_two(seed, seed_length, next_seed, SHA256_DIGEST_LENGTH, seed2);
 
-    #if DEBUG_DETERMINISTIC_KEY_PAIR_ITERATOR
+#if DEBUG_DETERMINISTIC_KEY_PAIR_ITERATOR
     tohex(buf, seed2, SHA256_DIGEST_LENGTH);
     printf("seed2: %s\n", buf);
-    #endif
+#endif
 
     if (0 != deterministic_key_pair_iterator_step(seed2, seckey, pubkey)) {
         return -1;
     }
 
-    #if DEBUG_DETERMINISTIC_KEY_PAIR_ITERATOR
+#if DEBUG_DETERMINISTIC_KEY_PAIR_ITERATOR
     tohex(buf, seckey, SKYCOIN_SECKEY_LEN);
     printf("seckey: %s\n", buf);
     tohex(buf, pubkey, SKYCOIN_PUBKEY_LEN);
     printf("pubkey: %s\n", buf);
-    #endif
+#endif
 
     return 0;
 }

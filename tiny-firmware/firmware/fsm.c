@@ -51,8 +51,8 @@
 // Utils
 
 #define CASE_SEND_FAILURE_FORMSG(type, fail, msg, msgtype) \
-    case type:                             \
-        fsm_sendFailure(fail, msg, msgtype);        \
+    case type:                                             \
+        fsm_sendFailure(fail, msg, msgtype);               \
         break;
 
 #define CASE_SEND_FAILURE(type, fail, msg) CASE_SEND_FAILURE_FORMSG(type, fail, msg, 0)
@@ -170,10 +170,10 @@ void fsm_sendSuccess(const char* text, MessageType* msgtype)
         strlcpy(resp->message, text, sizeof(resp->message));
     }
     if (msgtype) {
-      resp->has_msg_type = true;
-      resp->msg_type = *msgtype;
+        resp->has_msg_type = true;
+        resp->msg_type = *msgtype;
     } else {
-      resp->has_msg_type = false;
+        resp->has_msg_type = false;
     }
     msg_write(MessageType_MessageType_Success, resp);
 }
@@ -189,10 +189,10 @@ void fsm_sendFailure(FailureType code, const char* text, MessageType* msgtype)
     resp->has_code = true;
     resp->code = code;
     if (msgtype) {
-      resp->has_msg_type = true;
-      resp->msg_type = *msgtype;
+        resp->has_msg_type = true;
+        resp->msg_type = *msgtype;
     } else {
-      resp->has_msg_type = false;
+        resp->has_msg_type = false;
     }
     if (text == NULL) {
         switch (code) {
@@ -321,22 +321,22 @@ void fsm_msgSkycoinCheckMessageSignature(SkycoinCheckMessageSignature* msg)
     GET_MSG_POINTER(Success, successResp);
     GET_MSG_POINTER(Failure, failureResp);
     uint16_t msg_id = MessageType_MessageType_Failure;
-    void *msg_ptr = failureResp;
+    void* msg_ptr = failureResp;
     switch (msgSkycoinCheckMessageSignatureImpl(msg, successResp, failureResp)) {
-        case ErrOk:
-            msg_id = MessageType_MessageType_Success;
-            msg_ptr = successResp;
-            layoutRawMessage("Verification success");
-            break;
-        case ErrAddressGeneration:
-        case ErrInvalidSignature:
-            failureResp->code = FailureType_Failure_InvalidSignature;
-            layoutRawMessage("Wrong signature");
-            break;
-        default:
-            strncpy(failureResp->message, _("Firmware error."), sizeof(failureResp->message));
-            layoutHome();
-            break;
+    case ErrOk:
+        msg_id = MessageType_MessageType_Success;
+        msg_ptr = successResp;
+        layoutRawMessage("Verification success");
+        break;
+    case ErrAddressGeneration:
+    case ErrInvalidSignature:
+        failureResp->code = FailureType_Failure_InvalidSignature;
+        layoutRawMessage("Wrong signature");
+        break;
+    default:
+        strncpy(failureResp->message, _("Firmware error."), sizeof(failureResp->message));
+        layoutHome();
+        break;
     }
     msg_write(msg_id, msg_ptr);
 }

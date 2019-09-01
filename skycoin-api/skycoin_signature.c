@@ -13,10 +13,10 @@
 
 #include <string.h>
 
-#include "skycoin_constants.h"
-#include "secp256k1.h"
 #include "curves.h"
 #include "ecdsa.h"
+#include "secp256k1.h"
+#include "skycoin_constants.h"
 
 // sig 65 bytes compact recoverable signature
 // digest 32 bytes sha256 hash
@@ -45,7 +45,7 @@ pub_key can be 33 bytes compressed pubkey or 65 bytes long pubkey
 
 Returns 0 if the pubkey is invalid
 */
-int pubkey_is_valid(const ecdsa_curve *curve, const uint8_t* pub_key)
+int pubkey_is_valid(const ecdsa_curve* curve, const uint8_t* pub_key)
 {
     curve_point point;
     return ecdsa_read_pubkey(curve, pub_key, &point);
